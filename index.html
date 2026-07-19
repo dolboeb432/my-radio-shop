@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ РадіоТех-Постач | Оптові ціни на припої та олово</title>
+    <style>
+        :root { --primary: #1e3d59; --secondary: #17b978; --accent: #ff6f3c; --bg: #f5f7fa; --text: #333333; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
+        header { background-color: var(--primary); color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; }
+        .header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo h1 { font-size: 24px; } .logo span { color: var(--secondary); }
+        .cart-status { background-color: var(--secondary); padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .promo-banner { background-color: var(--accent); color: white; text-align: center; padding: 8px; font-weight: bold; font-size: 14px; }
+        .main-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .catalog-title { margin-bottom: 20px; border-bottom: 3px solid var(--primary); padding-bottom: 10px; color: var(--primary); }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        .product-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e1e8ed; display: flex; flex-direction: column; padding-bottom: 15px; }
+        .img-container { width: 100%; height: 200px; background-color: #eaeff2; }
+        .product-img { width: 100%; height: 100%; object-fit: cover; }
+        .product-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
+        .product-title { font-size: 17px; margin-bottom: 8px; color: var(--primary); }
+        .product-desc { font-size: 12px; color: #666; margin-bottom: 15px; flex-grow: 1; }
+        .quantity-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        .qty-btn { background: #e1e8ed; border: none; width: 30px; height: 30px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .qty-input { width: 45px; text-align: center; font-weight: bold; border: 1px solid #ccc; border-radius: 4px; padding: 3px; }
+        .product-meta { display: flex; justify-content: space-between; align-items: center; }
+        .price-tag { font-size: 20px; font-weight: bold; color: var(--primary); }
+        .price-tag span { font-size: 13px; color: #888; text-decoration: line-through; margin-right: 5px; }
+        .buy-btn { background-color: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .checkout-section { background: white; border-radius: 8px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e1e8ed; }
+        .checkout-title { color: var(--primary); margin-bottom: 20px; font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .checkout-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .checkout-container { grid-template-columns: 1fr; } }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .order-summary { background: #f8fafc; padding: 20px; border-radius: 6px; border: 1px dashed var(--primary); }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+        .remove-btn { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 16px; margin-left: 10px; }
+        .summary-row { display: flex; justify-content: space-between; margin-top: 15px; font-size: 14px; }
+        .summary-total { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; font-size: 18px; font-weight: bold; color: var(--accent); }
+        .submit-order-btn { background-color: var(--secondary); color: white; border: none; width: 100%; padding: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .error-msg { color: #e74c3c; font-size: 12px; margin-top: 5px; display: none; }
+        footer { background-color: #222; color: #aaa; text-align: center; padding: 15px; margin-top: 40px; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div class="promo-banner">🔥 АКЦІЯ: ЛІКВІДАЦІЯ СКЛАДІВ РАДЯНСЬКОГО ДЕРЖРЕЗЕРВУ! ЦІНИ ЗНИЖЕНО НА 80%! 🔥</div>
+
+    <header>
+        <div class="header-container">
+            <div class="logo"><h1>⚡ Радіо<span>Тех-Постач</span></h1></div>
+            <div class="cart-status" onclick="scrollToCheckout()">🛒 Кошик: <span id="cart-count">0</span> шт. (<span id="cart-total-top">0</span> грн)</div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <h2 class="catalog-title">Каталог чистих металів та припоїв (ДСТУ / ГОСТ)</h2>
+        <div class="products-grid">
+            
+            <!-- Товар 1 -->
+            <div class="product-card">
+                <div class="img-container"><img src="olovo.jpg" alt="Олово О1" class="product-img"></div>
+                <div class="product-info">
+                    <h3 class="product-title">Олово чисте в прутках (Марка О1)</h3>
+                    <p class="product-desc">Високочисте олово (99.9%). Ідеально для лудження плат. При згинанні видає характерний кристалічний хрускіт («олов'яний крик»).</p>
+                    <div class="quantity-controls">
+                        <button class="qty-btn" onclick="changeQty('qty-1', -1)">-</button>
+                        <input type="number" id="qty-1" class="qty-input" value="1" min="1" readonly>
+                        <button class="qty-btn" onclick="changeQty('qty-1', 1)">+</button>
+                    </div>
+                    <div class="product-meta">
+                        <div class="price-tag"><span>45 грн</span> 10 грн <small style="font-size:11px">/ 30г</small></div>
+                        <button class="buy-btn" onclick="addItemsToCart('Олово чисте (30г)', 10, 'qty-1')">В кошик</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 2 -->
+            <div class="product-card">
+                <div class="img-container"><img src="pripoy.jpg" alt="Припой ПОС" class="product-img"></div>
+                <div class="product-info">
+                    <h3 class="product-title">Припой ПОС-60 (Катушка)</h3>
+                    <p class="product-desc">Традиційний м'який припой (60% олова, 40% свинцю) з каніфоллю всередині. Стандарт для паяння плат.</p>
+                    <div class="quantity-controls">
+                        <button class="qty-btn" onclick="changeQty('qty-2', -1)">-</button>
+                        <input type="number" id="qty-2" class="qty-input" value="1" min="1" readonly>
+                        <button class="qty-btn" onclick="changeQty('qty-2', 1)">+</button>
+                    </div>
+                    <div class="product-meta">
+                        <div class="price-tag"><span>60 грн</span> 15 грн <small style="font-size:11px">/ 50г</small></div>
+                        <button class="buy-btn" onclick="addItemsToCart('Припой ПОС-60 (50г)', 15, 'qty-2')">В кошик</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Товар 3 -->
+            <div class="product-card">
+                <div class="img-container"><img src="kusok.jpg" alt="Олово кускове" class="product-img"></div>
+                <div class="product-info">
+                    <h3 class="product-title">Олово кускове (Марка О2)</h3>
+                    <p class="product-desc">Чистий метал у великих злитках для переплавки з радянського довгострокового зберігання.</p>
+                    <div class="quantity-controls">
+                        <button class="qty-btn" onclick="changeQty('qty-3', -1)">-</button>
+                        <input type="number" id="qty-3" class="qty-input" value="1" min="1" readonly>
+                        <button class="qty-btn" onclick="changeQty('qty-3', 1)">+</button>
+                    </div>
+                    <div class="product-meta">
+                        <div class="price-tag"><span>95 грн</span> 25 грн <small style="font-size:11px">/ 100г</small></div>
+                        <button class="buy-btn" onclick="addItemsToCart('Олово кускове (100г)', 25, 'qty-3')">В кошик</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Оформление -->
+        <div class="checkout-section" id="checkout">
+            <h3 class="checkout-title">📦 Оформлення швидкої доставки по Україні</h3>
+            <form id="orderForm" onsubmit="validateAndSubmit(event)">
+                <div class="checkout-container">
+                    <div>
+                        <div class="form-group">
+                            <label for="fullName">Прізвище та Ім'я одержувача</label>
+                            <input type="text" id="fullName" placeholder="Наприклад, Романченко Олег" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber">Номер мобільного телефону (UA)</label>
+                            <input type="text" id="phoneNumber" placeholder="0XXXXXXXXX" required>
+                            <div class="error-msg" id="phoneError">Будь ласка, введіть регіональний номер телефону!</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="region">Область доставки</label>
+                            <select id="region" required>
+                                <option value="">-- Виберіть область --</option>
+                                <option value="Одеська">Одеська область</option>
+                                <option value="Київська">Київська область</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label for="city">Населений пункт</label><input type="text" id="city" required></div>
+                        <div class="form-group"><label for="postOffice">Відділення пошти</label><input type="text" id="postOffice" required></div>
+                    </div>
+                    <div>
+                        <div class="order-summary">
+                            <h4 style="margin-bottom: 15px; color: var(--primary);">Ваш кошик:</h4>
+                            <div id="cart-items-list"><i style="color:#888; font-size:13px;">Кошик порожній.</i></div>
+                            <div class="summary-row"><span>Вартість товарів:</span><span id="items-cost">0 грн</span></div>
+                            <div class="summary-row"><span>Доставка:</span><span style="color: var(--secondary); font-weight: bold;">БЕЗКОШТОВНО</span></div>
+                            <div class="summary-total"><span>Разом до сплати:</span><span id="final-cost">0 грн</span></div>
+                        </div>
+                        <button type="submit" class="submit-order-btn">ЗАМОВЛЕННЯ ПІДТВЕРДЖУЮ</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        let cart = [];
+        function changeQty(id, delta) { const input = document.getElementById(id); let val = parseInt(input.value) + delta; if (val < 1) val = 1; input.value = val; }
+        function addItemsToCart(name, price, qtyInputId) { const qty = parseInt(document.getElementById(qtyInputId).value); const existingItem = cart.find(item => item.name === name); if (existingItem) { existingItem.qty += qty; } else { cart.push({ name, price, qty }); } document.getElementById(qtyInputId).value = 1; updateCartUI(); }
+        function removeFromCart(name) { cart = cart.filter(item => item.name !== name); updateCartUI(); }
+        function updateCartUI() { let totalCount = 0; let totalSum = 0; const list = document.getElementById('cart-items-list'); if (cart.length === 0) { list.innerHTML = '<i style="color:#888; font-size:13px;">Кошик порожній.</i>'; } else { list.innerHTML = cart.map(item => { const itemTotal = item.price * item.qty; totalCount += item.qty; totalSum += itemTotal; return `<div class="cart-item-row"><span><b>${item.name}</b> x${item.qty}</span><span style="margin-left: auto;">${itemTotal} грн</span><button type="button" class="remove-btn" onclick="removeFromCart('${item.name}')">❌</button></div>`; }).join(''); } document.getElementById('cart-count').innerText = totalCount; document.getElementById('cart-total-top').innerText = totalSum; document.getElementById('items-cost').innerText = totalSum + ' грн'; document.getElementById('final-cost').innerText = totalSum + ' грн'; }
+        function scrollToCheckout() { document.getElementById('checkout').scrollIntoView({ behavior: 'smooth' }); }
+        function validateAndSubmit(event) { event.preventDefault(); if (cart.length === 0) { alert('Кошик порожній!'); return; } const name = document.getElementById('fullName').value; alert(`🎉 Дякуємо, ${name}! Замовлення успішно оформлено.`); cart = []; updateCartUI(); document.getElementById('orderForm').reset(); }
+    </script>
+</body>
+</html>
